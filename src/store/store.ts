@@ -1,13 +1,20 @@
 import { create } from "zustand";
 
+interface Category {
+  categoryGroup: string;
+  categoryName: string;
+  checked: boolean; // Added checked property to the Category interface
+}
+
 type DescriptionType = { title: string; amount: number; details: string };
+
 type TransactionState = {
   amount: number;
   transactionType: "income" | "expense" | "investment";
   title: string;
   date: Date;
   description: DescriptionType;
-  category: string;
+  category: Category;
 };
 
 type CreateType = {
@@ -20,7 +27,7 @@ type CreateType = {
     amount: number;
     date: Date;
     description: DescriptionType;
-    category: string;
+    category: Category;
   };
 
   transactionType: "income" | "expense" | "investment" | "";
@@ -30,8 +37,8 @@ type CreateType = {
   setAmount: (amount: number) => void;
   setDate: (date: Date) => void;
   setDescription: (description: DescriptionType) => void;
-  setCategory: (category: string) => void;
-
+  setCategory: (category: Category) => void;
+  setCategoryCheckbox: (categoryName: string, checked: boolean) => void;
   addTransaction: () => void;
 };
 
@@ -43,7 +50,7 @@ export const useTransactionStore = create<CreateType>((set) => ({
     amount: 0,
     date: new Date(),
     description: { title: "", amount: 0, details: "" },
-    category: "",
+    category: { checked: false, categoryGroup: "", categoryName: "" },
   },
   transactions: [],
 
@@ -69,6 +76,21 @@ export const useTransactionStore = create<CreateType>((set) => ({
       transactionData: { ...state.transactionData, category },
     })),
 
+  setCategoryCheckbox: (categoryName: string, checked: boolean) =>
+    set((state) => {
+      const updatedCategory = {
+        ...state.transactionData.category,
+        categoryName,
+        checked,
+      };
+      return {
+        transactionData: {
+          ...state.transactionData,
+          category: updatedCategory,
+        },
+      };
+    }),
+
   addTransaction: () =>
     set((state) => {
       const { title, amount, date, description, category } =
@@ -81,19 +103,26 @@ export const useTransactionStore = create<CreateType>((set) => ({
         !date ||
         !description.details ||
         !transactionType ||
-        !category
+        !category.categoryName
       ) {
-        throw new Error(
+        console.error(
           "Please fill all the required fields before adding a transaction."
         );
+        return state;
       }
+
+      const newTransaction: TransactionState = {
+        title,
+        amount,
+        date,
+        description,
+        category,
+        transactionType,
+      };
 
       return {
         ...state,
-        transactions: [
-          ...state.transactions,
-          { title, amount, date, description, category, transactionType },
-        ],
+        transactions: [...state.transactions, newTransaction],
       };
     }),
 

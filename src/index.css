@@ -83,12 +83,12 @@
 
   .fade-in {
     @apply opacity-100 scale-100 transition-all  duration-100;
-    animation: fadeIn 0.2s ease-in-out forwards;
+    animation: fadeIn 0.1s ease-in-out forwards;
   }
 
   .fade-out {
     @apply opacity-0 scale-95 transition-all duration-100;
-    animation: fadeOut 0.2s ease-in-out forwards;
+    animation: fadeOut 0.1s ease-in-out forwards;
     pointer-events: none;
   }
 

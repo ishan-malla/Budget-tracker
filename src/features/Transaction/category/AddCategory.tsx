@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Category from "@/components/Category";
+import AddNewCategory from "./AddNewCategory";
+import useToggleVisibility from "@/hooks/useToggleVisibilty";
 type AddTransactionProp = {
   visibility: "hidden" | "";
 };
@@ -26,11 +28,29 @@ const categoryList = [
 
 const AddCategory = ({ visibility }: AddTransactionProp) => {
   const [category, setCategory] = useState("");
+  const { visibility: AddNewCategoryVis, toggleVisibility } =
+    useToggleVisibility();
+
+  const getFilteredItems = () => {
+    const allItems = categoryList.flatMap((category) => category.items);
+
+    if (!category) {
+      return allItems;
+    }
+
+    return allItems.filter((item) =>
+      item.title.toLowerCase().includes(category.toLowerCase())
+    );
+  };
 
   return (
     <div
       className={`min-h-[48vh]  h-auto border-2 w-[17vw] flex flex-col  p-2 rounded-sm ${visibility} abolute shadow-md shadow-gray-200 absolute z-10 right-48 bg-white  top-[4.6rem]   `}
     >
+      <AddNewCategory
+        visibility={AddNewCategoryVis}
+        toggleVisibility={toggleVisibility}
+      ></AddNewCategory>
       <input
         type="text"
         placeholder="Search ..."
@@ -39,13 +59,16 @@ const AddCategory = ({ visibility }: AddTransactionProp) => {
         value={category}
       />
       <ScrollArea className="pt-4 h-[30vh] text-xs p-1 w-full mt-3">
-        <Category categoryObjectArray={categoryList} />
+        <Category
+          categoryObjectArray={categoryList}
+          getCategory={getFilteredItems}
+        />
       </ScrollArea>
-      <div className="mt-auto font-semibold  flex flex-col items-start  border-t-2 text-sm p-1 gap-3 text-gray-600 max-h-[200px] w-full  ">
-        <button className="mt-2 w-full hover:bg-gray-100 text-left h-5">
-          View all categories
-        </button>
-        <button className=" w-full hover:bg-gray-100 text-left h-5">
+      <div className="mt-auto font-semibold  grid items-center  border-t-2 text-sm p-1 gap-3 text-gray-600 w-full  h-10">
+        <button
+          className=" w-full hover:bg-gray-100 text-left h-5 "
+          onClick={toggleVisibility}
+        >
           Add new category
         </button>
       </div>
@@ -54,8 +77,3 @@ const AddCategory = ({ visibility }: AddTransactionProp) => {
 };
 
 export default AddCategory;
-
-//In category there should be a category like home and lesiure
-//and on click of the type add option of income expense investement savings  and amount
-
-//reaserch for icon libarys

@@ -1,13 +1,6 @@
 import { Checkbox } from "@/components/ui/checkbox";
-
-// type CategoryObject = { category: string; items: Items };
-// type Items = Item[];
-// type Item = {
-//   emoji: string;
-//   title: string;
-//   checked: boolean;
-// };
-// type categoryObjectArray = { CategoryObjectArray: CategoryObject[] };
+import { useTransactionStore } from "@/store/store";
+import { useState } from "react";
 type CategoryObject = {
   category: string;
   items: Item[];
@@ -21,9 +14,14 @@ type Item = {
 
 type CategoryProps = {
   categoryObjectArray: CategoryObject[];
+  getCategory: () => Item[];
 };
 
-const Category = ({ categoryObjectArray }: CategoryProps) => {
+const Category = ({ categoryObjectArray, getCategory }: CategoryProps) => {
+  const [checkbox, setCheckbox] = useState(false);
+  // const { useCheckBoxVisiblity } = useTransactionStore();
+  // useCheckBoxVisiblity(checkbox);
+  // console.log(getCategory);
   return (
     <>
       {categoryObjectArray.map((categoryObject: CategoryObject) => (
@@ -40,7 +38,12 @@ const Category = ({ categoryObjectArray }: CategoryProps) => {
                 <span className="text-base "> {item.emoji}</span>
                 <span className="text-sm  font-medium px-1 ">{item.title}</span>
               </div>
-              <Checkbox checked={item.checked}></Checkbox>
+              <Checkbox
+                onClick={() => {
+                  setCheckbox((prevState) => !prevState);
+                }}
+                checked={checkbox}
+              ></Checkbox>
             </div>
           ))}
         </div>
@@ -49,3 +52,5 @@ const Category = ({ categoryObjectArray }: CategoryProps) => {
   );
 };
 export default Category;
+
+// remove category group and make is a single array of objects

@@ -1,14 +1,17 @@
 import { Plus, ChevronDown } from "lucide-react";
-import AddCategory from "./AddCategory";
+import AddCategory from "./category/AddCategory";
 import { useState } from "react";
 import Type from "./Type";
 import Transaction from "./Transaction";
+import { useTransactionStore } from "@/store/store";
+
 
 type type = "TYPE";
 type catgory = "CATEGORY";
 
 type dropDown = type | catgory | null;
-//add a new bg for currently active component change the bg
+
+
 const Transactions = () => {
   const [dropDown, setDropDown] = useState<dropDown>(null);
 
@@ -28,6 +31,9 @@ const Transactions = () => {
   };
   const categoryVisibility = dropDown == "CATEGORY" ? "" : "hidden";
   const typeVisibility = dropDown == "TYPE" ? "fade-in" : "fade-out hidden ";
+  const{addTransaction,transactionData}=useTransactionStore();
+  console.log(transactionData)
+console.log()
 
   return (
     <div className="h-auto min-h-[50vh] relative ">
@@ -67,7 +73,7 @@ const Transactions = () => {
               absoluteStrokeWidth
             />
           </button>
-          <button className="w-16 text-white bg-neutral-900 rounded-2xl flex-center gap-1 hover:bg-zinc-700 hover:text-gray-100">
+          <button className="w-16 text-white bg-neutral-900 rounded-2xl flex-center gap-1 hover:bg-zinc-700 hover:text-gray-100" onClick={()=>addTransaction}>
             <Plus size={16} color="#ffffff" /> Add
           </button>
         </div>

@@ -35,16 +35,17 @@ const formSchema = z.object({
 });
 
 const Description = ({ visibility, toggle }: DescriptionProps) => {
+  const { setDescription, transactionData } = useTransactionStore();
+  const { description } = transactionData;
+
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: "",
-      details: "",
-      amount: 0,
+      title: description?.title,
+      amount: description?.amount,
+      details: description?.details,
     },
   });
-
-  const { setDescription } = useTransactionStore();
 
   const onSubmit = (data: {
     title: string;
@@ -58,7 +59,9 @@ const Description = ({ visibility, toggle }: DescriptionProps) => {
   };
 
   return (
-    <div className={`h-[95%] w-full absolute z-20 ${visibility} bg-white p-3 `}>
+    <div
+      className={`h-[95%] w-full absolute z-20 ${visibility} bg-white p-2  `}
+    >
       <div className="w-full flex  h-5 px-2">
         <X
           size={20}

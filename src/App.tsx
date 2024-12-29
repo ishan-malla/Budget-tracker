@@ -2,9 +2,10 @@
 import TotalBalance from "./features/AmountViewer/TotalBalance";
 import Transactions from "./features/Transaction/Transactions";
 import TotalAmount from "./features/AmountViewer/TotalAmount";
+
 const App = () => {
   return (
-    <div className=" h-auto min-h-screen w-screen flex  flex-col justify-center pt-20 overflow-hidden items-center">
+    <div className=" h-auto min-h-[90%] w-screen flex  flex-col justify-center pt-20 overflow-x-hidden items-center scroll-smooth ">
       <h1 className="text-3xl font-extrabold  mb-8 self-start px-60 ">
         Summary
       </h1>
