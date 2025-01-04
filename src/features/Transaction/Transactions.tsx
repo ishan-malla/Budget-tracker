@@ -1,16 +1,14 @@
 import { Plus, ChevronDown } from "lucide-react";
 import AddCategory from "./category/AddCategory";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Type from "./Type";
 import Transaction from "./Transaction";
 import { useTransactionStore } from "@/store/store";
-
 
 type type = "TYPE";
 type catgory = "CATEGORY";
 
 type dropDown = type | catgory | null;
-
 
 const Transactions = () => {
   const [dropDown, setDropDown] = useState<dropDown>(null);
@@ -31,9 +29,14 @@ const Transactions = () => {
   };
   const categoryVisibility = dropDown == "CATEGORY" ? "" : "hidden";
   const typeVisibility = dropDown == "TYPE" ? "fade-in" : "fade-out hidden ";
-  const{addTransaction,transactionData}=useTransactionStore();
-  console.log(transactionData)
-console.log()
+  const { addTransaction, transactionData, transactions } =
+    useTransactionStore();
+  console.log(transactionData);
+  console.log(transactions);
+
+  useEffect(() => {
+    console.log("Transactions state in component:", transactions);
+  }, [transactions]);
 
   return (
     <div className="h-auto min-h-[50vh] relative ">
@@ -73,7 +76,10 @@ console.log()
               absoluteStrokeWidth
             />
           </button>
-          <button className="w-16 text-white bg-neutral-900 rounded-2xl flex-center gap-1 hover:bg-zinc-700 hover:text-gray-100" onClick={()=>addTransaction}>
+          <button
+            className="w-16 text-white bg-neutral-900 rounded-2xl flex-center gap-1 hover:bg-zinc-700 hover:text-gray-100"
+            onClick={() => addTransaction()}
+          >
             <Plus size={16} color="#ffffff" /> Add
           </button>
         </div>

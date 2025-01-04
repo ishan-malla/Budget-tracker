@@ -1,3 +1,5 @@
+"use client";
+
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,36 +21,38 @@ type AddNewCategoryProps = {
   toggleVisibility: () => void;
 };
 
+const formSchema = z.object({
+  category: z
+    .string()
+    .min(1, "Category name cannot be empty")
+    .max(50, "Category name must be less than 50 characters"),
+});
+
+type FormValues = z.infer<typeof formSchema>;
+
 const AddNewCategory = ({
   visibility,
   toggleVisibility,
 }: AddNewCategoryProps) => {
-  const formSchema = z.object({
-    categoryGroup: z
-      .string()
-      .min(2, "Group name must be at least 2 characters long")
-      .max(20, "Group name must be less than 20 characters"),
-    categoryName: z
-      .string()
-      .min(1, "Category name cannot be empty")
-      .max(50, "Category name must be less than 50 characters"),
-  });
-
-  const form = useForm({
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      categoryGroup: "",
-      categoryName: "",
+      category: "",
     },
   });
 
-  const onSubmit = (data: { categoryGroup: string; categoryName: string }) => {
-    setCategory(data);
+  const { setCategory } = useTransactionStore();
+
+  const onSubmit = (data: FormValues) => {
+    setCategory({
+      categoryName: data.category,
+      categoryGroup: "",
+      checked: false,
+    });
     form.reset();
     toggleVisibility();
   };
 
-  const { setCategory } = useTransactionStore();
   return (
     <div
       className={`w-[25vw] h-full absolute z-20 bg-white ${visibility} p-2 top-0 shadow-md`}
@@ -68,25 +72,7 @@ const AddNewCategory = ({
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
           <FormField
             control={form.control}
-            name="categoryGroup"
-            render={({ field }) => (
-              <FormItem>
-                <Label>Group Name</Label>
-                <FormControl>
-                  <Input
-                    placeholder="E.g., Household, Leisure"
-                    {...field}
-                    maxLength={20}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="categoryName"
+            name="category"
             render={({ field }) => (
               <FormItem>
                 <Label>Category Name</Label>

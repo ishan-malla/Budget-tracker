@@ -47,14 +47,14 @@ const Description = ({ visibility, toggle }: DescriptionProps) => {
     },
   });
 
+  const { control, handleSubmit, reset } = form;
   const onSubmit = (data: {
     title: string;
     details: string;
     amount: number;
   }) => {
     setDescription(data);
-
-    form.reset();
+    reset();
     toggle();
   };
 
@@ -75,9 +75,9 @@ const Description = ({ visibility, toggle }: DescriptionProps) => {
       </div>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3 mt-3">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-3 mt-3">
           <FormField
-            control={form.control}
+            control={control}
             name="title"
             render={({ field }) => (
               <FormItem>
@@ -90,7 +90,7 @@ const Description = ({ visibility, toggle }: DescriptionProps) => {
             )}
           />
           <FormField
-            control={form.control}
+            control={control}
             name="amount"
             render={({ field }) => (
               <FormItem>
@@ -104,7 +104,7 @@ const Description = ({ visibility, toggle }: DescriptionProps) => {
           />
 
           <FormField
-            control={form.control}
+            control={control}
             name="details"
             render={({ field }) => (
               <FormItem>
@@ -121,7 +121,6 @@ const Description = ({ visibility, toggle }: DescriptionProps) => {
               </FormItem>
             )}
           />
-
           <Button type="submit" className="w-full">
             Submit
           </Button>

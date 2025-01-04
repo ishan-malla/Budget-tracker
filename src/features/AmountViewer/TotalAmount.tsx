@@ -1,37 +1,18 @@
-import Currency from "../../components/Currency";
+import Amount from "./Amount";
 
 const TotalAmount = () => {
   return (
     <>
-      <div className="total-amount-div">
-        <h2 className="text-green-500 text-md font-semibold">Income</h2>
-        <span className="number-text flex">
-          135780.47
-          <Currency></Currency>
-        </span>
-      </div>
-      <div className="total-amount-div">
-        <h2 className="text-red-500 text-md font-semibold">Expenses</h2>
-        <span className="number-text flex">
-          87600.34
-          <Currency></Currency>
-        </span>
-      </div>
-      <div className="total-amount-div">
-        <h2 className="text-violet-700 text-md font-semibold">Investment</h2>
-        <span className="number-text flex ">
-          48500.01
-          <Currency></Currency>
-        </span>
-      </div>
-      <div className="total-amount-div">
-        <h2 className="text-yellow-500 text-md font-semibold">Savings</h2>
-        <span className="number-text flex">
-          23345.05
-          <Currency></Currency>
-        </span>
-      </div>
+      <Amount textColour="green-500" amountType="Income" amount={135780.47} />
+      <Amount textColour="red-500" amountType="Expenses" amount={87600.34} />
+      <Amount
+        textColour="violet-700"
+        amountType="Investment"
+        amount={48500.01}
+      />
+      <Amount textColour="yellow-500" amountType="Savings" amount={23345.05} />
     </>
   );
 };
+
 export default TotalAmount;

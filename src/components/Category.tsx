@@ -1,56 +1,48 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import { useTransactionStore } from "@/store/store";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { v4 as uuid } from "uuid";
 type CategoryObject = {
-  category: string;
-  items: Item[];
-};
-
-type Item = {
-  emoji: string;
-  title: string;
-  checked: boolean;
+  name: string;
+  isChecked: boolean;
 };
 
 type CategoryProps = {
-  categoryObjectArray: CategoryObject[];
-  getCategory: () => Item[];
+  filteredItems: CategoryObject[];
 };
 
-const Category = ({ categoryObjectArray, getCategory }: CategoryProps) => {
-  const [checkbox, setCheckbox] = useState(false);
-  // const { useCheckBoxVisiblity } = useTransactionStore();
-  // useCheckBoxVisiblity(checkbox);
-  // console.log(getCategory);
+const Category = ({ filteredItems }: CategoryProps) => {
+  const { setCategory } = useTransactionStore();
+  const [checkboxStates, setCheckboxStates] = useState(
+    filteredItems.map((category) => category.isChecked)
+  );
+
+  const handleCheckboxToggle = (index: number) => {
+    setCheckboxStates((prevStates) => prevStates.map((_, i) => i === index));
+  };
+
+  useEffect(() => {
+    const selectedCategory = filteredItems[checkboxStates.indexOf(true)]?.name;
+
+    setCategory({ id: uuid(), name: selectedCategory, isChecked: true });
+    console.log(selectedCategory);
+  }, [checkboxStates, filteredItems, setCategory]);
+
   return (
     <>
-      {categoryObjectArray.map((categoryObject: CategoryObject) => (
-        <div key={categoryObject.category} className="mb-2">
-          <h1 className="font-semibold text-xs text-gray-400">
-            {categoryObject.category}
-          </h1>
-          {categoryObject.items.map((item, index) => (
-            <div
-              key={index}
-              className="w-full font-semibold flex h-7 text-sm items-center hover:bg-gray-100   justify-between  mt-[2%] p-2"
-            >
-              <div>
-                <span className="text-base "> {item.emoji}</span>
-                <span className="text-sm  font-medium px-1 ">{item.title}</span>
-              </div>
-              <Checkbox
-                onClick={() => {
-                  setCheckbox((prevState) => !prevState);
-                }}
-                checked={checkbox}
-              ></Checkbox>
-            </div>
-          ))}
+      {filteredItems.map((categoryObject, index) => (
+        <div key={categoryObject.name} className="mb-2">
+          <div className="w-full font-semibold flex h-7 text-sm items-center hover:bg-gray-100 justify-between mt-[2%] p-2">
+            <h1>{categoryObject.name}</h1>
+            <Checkbox
+              checked={checkboxStates[index]}
+              onClick={() => handleCheckboxToggle(index)}
+            />
+          </div>
         </div>
       ))}
     </>
   );
 };
-export default Category;
 
-// remove category group and make is a single array of objects
+export default Category;

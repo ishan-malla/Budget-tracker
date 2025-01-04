@@ -1,47 +1,28 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Category from "@/components/Category";
 import AddNewCategory from "./AddNewCategory";
 import useToggleVisibility from "@/hooks/useToggleVisibilty";
+import { useTransactionStore } from "@/store/store";
 type AddTransactionProp = {
   visibility: "hidden" | "";
 };
-
-const categoryList = [
-  {
-    category: "HOME",
-    items: [
-      { emoji: "🏠", title: "Rent", checked: true },
-      { emoji: "🛒", title: "Groceries", checked: false },
-    ],
-  },
-  {
-    category: "LESIURE",
-    items: [
-      { emoji: "🍿", title: "streaming", checked: false },
-      { emoji: "🍜", title: "Resturant", checked: false },
-      { emoji: "🍵", title: "Coffee", checked: false },
-      { emoji: "✈️", title: "Travel", checked: false },
-    ],
-  },
-];
 
 const AddCategory = ({ visibility }: AddTransactionProp) => {
   const [category, setCategory] = useState("");
   const { visibility: AddNewCategoryVis, toggleVisibility } =
     useToggleVisibility();
 
-  const getFilteredItems = () => {
-    const allItems = categoryList.flatMap((category) => category.items);
-
+  const { categoryList } = useTransactionStore();
+  const filteredItems = useMemo(() => {
     if (!category) {
-      return allItems;
+      return categoryList;
     }
 
-    return allItems.filter((item) =>
-      item.title.toLowerCase().includes(category.toLowerCase())
+    return categoryList.filter((item) =>
+      item.name.toLowerCase().includes(category.toLowerCase())
     );
-  };
+  }, [category, categoryList]);
 
   return (
     <div
@@ -59,10 +40,7 @@ const AddCategory = ({ visibility }: AddTransactionProp) => {
         value={category}
       />
       <ScrollArea className="pt-4 h-[30vh] text-xs p-1 w-full mt-3">
-        <Category
-          categoryObjectArray={categoryList}
-          getCategory={getFilteredItems}
-        />
+        <Category filteredItems={filteredItems} />
       </ScrollArea>
       <div className="mt-auto font-semibold  grid items-center  border-t-2 text-sm p-1 gap-3 text-gray-600 w-full  h-10">
         <button

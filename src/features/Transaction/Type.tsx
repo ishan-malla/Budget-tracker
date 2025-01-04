@@ -1,112 +1,3 @@
-// import { TrendingUp, X } from "lucide-react";
-// import Currency from "@/components/Currency";
-// import { CalendarForm } from "@/components/SelectDate";
-// import { CalendarSync } from "lucide-react";
-// import { Switch } from "@/components/ui/switch";
-// import { Button } from "@/components/ui/button";
-// import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-// import { ArrowUpRight, ArrowDownLeft } from "lucide-react";
-// import { SquareMenu } from "lucide-react";
-// import { useTransactionStore } from "@/store/store";
-
-// import Description from "./Description";
-// import { useState } from "react";
-// type TypeProps = {
-//   visibility: string;
-//   toggleType: () => void;
-// };
-
-// const Type = ({ visibility, toggleType }: TypeProps) => {
-//   const { transactionData } = useTransactionStore();
-//   const { description } = transactionData;
-
-//   const [descriptionVis, setDescpriptionVis] = useState(false);
-
-//   const descpVisbilility = descriptionVis ? "" : "hidden";
-
-//   const toggleDesp = () => setDescpriptionVis((prevState) => !prevState);
-
-//   return (
-//     <div
-//       className={`min-h-[49 vh] overflow-x-auto h-auto border-2 min-w-[27vw] md:w-[30vw] flex flex-col  p-4 rounded-sm   ${visibility} absolute shadow-md shadow-gray-200  z-5 right-48  bg-white items-center rounded-xl border top-[4.6rem]  `}
-//     >
-//       {/* <Form {...form}>
-//         <form
-//           onSubmit={form.handleSubmit(onSubmit)}
-//           className="w-full h-full flex flex-col items-center"
-//         > */}
-//       <Description
-//         visibility={descpVisbilility}
-//         toggle={toggleDesp}
-//       ></Description>
-//       <div className="w-full flex">
-//         <X
-//           size={20}
-//           color="#000000"
-//           strokeWidth={2}
-//           className="hover:cursor-pointer hover:bg-gray-50"
-//           absoluteStrokeWidth
-//           onClick={toggleType}
-//         />
-//         <h1 className="font-semibold text-sm mx-auto">New Transaction</h1>
-//       </div>
-//       <h1 className="font-bold text-6xl flex  mt-4 ">
-//         {description.amount} <Currency></Currency>
-//       </h1>
-//       <CalendarForm></CalendarForm>
-//       <Tabs defaultValue="Expense" className="flex  w-[95%] mt-1">
-//         <TabsList className=" w-full  flex justify-between gap-1 ">
-//           <TabsTrigger
-//             value="Expense"
-//             className="text-xs h-full w-[40%] flex gap-1 "
-//           >
-//             <ArrowDownLeft size={16} color="#ef4444" strokeWidth={3} />
-//             Expense
-//           </TabsTrigger>
-//           <TabsTrigger
-//             value="Income "
-//             className="text-xs  -full w-[40%] flex gap-1 "
-//           >
-//             <ArrowUpRight size={16} color="#22c55e" strokeWidth={3} />
-//             Income
-//           </TabsTrigger>
-//           <TabsTrigger
-//             value="Investment"
-//             className="text-xs  h-full w-[40%] flex gap-1  "
-//           >
-//             <TrendingUp size={16} color="#6d28d9 " strokeWidth={3} />
-//             Investment
-//           </TabsTrigger>
-//         </TabsList>
-//       </Tabs>
-
-//       <Button
-//         className="text-xs bg-gray-50  text-gray-500 w-[95%] mt-2 justify-between px-4 hover:bg-[#f5f5f5] hover:text-gray-800"
-//         variant={"outline"}
-//         onClick={toggleDesp}
-//       >
-//         Description <SquareMenu size={18} strokeWidth={2} />
-//       </Button>
-//       <div className="flex p-4 mt-1">
-//         <div className=" pl-4  text-sm font-semibold p-1 flex-grow">
-//           <p className="flex gap-2">
-//             <CalendarSync size={16} color="#000000" />
-//             Add as recuring
-//           </p>
-//           <p className="text-xs text-gray-500 font-medium pl-6">
-//             This transaction will be added again the following months at the
-//             same day as today
-//           </p>
-//         </div>
-//         <Switch className=" data-[state=checked]:bg-green-600 w-9 "></Switch>
-//       </div>
-//       <Button type="submit" className="w-full text-xs rounded-full mt-2 ">
-//         Add Transaction
-//       </Button>
-//     </div>
-//   );
-// };
-// export default Type;
 import { TrendingUp, X } from "lucide-react";
 import Currency from "@/components/Currency";
 import { CalendarForm } from "@/components/SelectDate";
@@ -137,17 +28,20 @@ const formSchema = z.object({
 
 const Type = ({ visibility, toggleType }: TypeProps) => {
   const { transactionData } = useTransactionStore();
-  const { description } = transactionData;
+  const { description, date } = transactionData;
 
   const [descriptionVis, setDescpriptionVis] = useState(false);
   const descpVisibility = descriptionVis ? "" : "hidden";
 
   const toggleDesc = () => setDescpriptionVis((prev) => !prev);
-
+  const [errorVisibility, setErrorVisbility] = useState<"hidden" | "">(
+    "hidden"
+  );
   const {
     control,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -157,6 +51,14 @@ const Type = ({ visibility, toggleType }: TypeProps) => {
   });
 
   const onSubmit = (data: z.infer<typeof formSchema>) => {
+    if (!date || description.title === "") {
+      setErrorVisbility("");
+      console.error("Please fill all required fields before submitting.");
+      return;
+    }
+    reset();
+    toggleType();
+    setErrorVisbility("hidden");
     console.log("Form submitted:", data);
   };
 
@@ -176,8 +78,8 @@ const Type = ({ visibility, toggleType }: TypeProps) => {
         />
         <h1 className="font-semibold text-sm mx-auto">New Transaction</h1>
       </div>
-      <h1 className="font-bold text-6xl flex mt-4">
-        {description.amount} <Currency />
+      <h1 className="font-bold text-6xl flex mt-4 ">
+        {description.amount} <Currency size="xl" />
       </h1>
       <CalendarForm />
       <form
@@ -226,6 +128,7 @@ const Type = ({ visibility, toggleType }: TypeProps) => {
           className="text-xs bg-gray-50 text-gray-500 w-[95%] mt-2 justify-between px-4 hover:bg-[#f5f5f5] hover:text-gray-800"
           variant={"outline"}
           onClick={toggleDesc}
+          type="button"
         >
           Description <SquareMenu size={18} strokeWidth={2} />
         </Button>
@@ -257,7 +160,12 @@ const Type = ({ visibility, toggleType }: TypeProps) => {
             {errors.recurring.message}
           </p>
         )}
-        <Button type="submit" className="w-full text-xs rounded-full mt-2" >
+        <div
+          className={`text-red-500 font-semibold text-sm ${errorVisibility}`}
+        >
+          Please fill description and date
+        </div>
+        <Button type="submit" className="w-full text-xs rounded-full mt-2">
           Add Transaction
         </Button>
       </form>

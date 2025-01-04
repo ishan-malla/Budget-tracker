@@ -1,20 +1,24 @@
 import { create } from "zustand";
+import { v4 as uuid } from "uuid";
 
-interface Category {
-  categoryGroup: string;
-  categoryName: string;
-  checked: boolean; // Added checked property to the Category interface
-}
+type DescriptionType = {
+  title: string;
+  amount: number;
+  details: string;
+};
 
-type DescriptionType = { title: string; amount: number; details: string };
+type CategoryType = {
+  id: string;
+  name: string;
+};
 
 type TransactionState = {
-  amount: number;
+  id: string;
   transactionType: "income" | "expense" | "investment";
-  title: string;
-  date: Date;
+  date: Date | "";
   description: DescriptionType;
-  category: Category;
+  category: CategoryType;
+  isRecuring: boolean;
 };
 
 type CreateType = {
@@ -22,114 +26,128 @@ type CreateType = {
   transactions: TransactionState[];
   calculateTotalAmount: () => void;
 
-  transactionData: {
-    title: string;
-    amount: number;
-    date: Date;
-    description: DescriptionType;
-    category: Category;
-  };
+  transactionData: TransactionState;
+  categoryList: CategoryType[];
 
-  transactionType: "income" | "expense" | "investment" | "";
-
-  setTransactionType: (type: "income" | "expense" | "investment" | "") => void;
-  setTitle: (title: string) => void;
+  setTransactionType: (type: "income" | "expense" | "investment") => void;
   setAmount: (amount: number) => void;
   setDate: (date: Date) => void;
   setDescription: (description: DescriptionType) => void;
-  setCategory: (category: Category) => void;
-  setCategoryCheckbox: (categoryName: string, checked: boolean) => void;
+  setCategory: (category: CategoryType) => void;
+  setIsRecuring: (isRecuring: boolean) => void;
   addTransaction: () => void;
 };
 
 export const useTransactionStore = create<CreateType>((set) => ({
   totalAmount: 0,
-  transactionType: "",
-  transactionData: {
-    title: "",
-    amount: 0,
-    date: new Date(),
-    description: { title: "", amount: 0, details: "" },
-    category: { checked: false, categoryGroup: "", categoryName: "" },
-  },
   transactions: [],
 
-  setTransactionType: (type) => set({ transactionType: type }),
-  setTitle: (title) =>
+  transactionData: {
+    id: uuid(),
+    transactionType: "expense",
+    date: "",
+    description: { title: "", amount: 0, details: "" },
+    category: { id: "", name: "" },
+    isRecuring: false,
+  },
+
+  categoryList: [
+    { id: "1", name: "Rent" },
+    { id: "2", name: "Groceries" },
+    { id: "3", name: "Streaming" },
+    { id: "4", name: "Restaurant" },
+    { id: "5", name: "Coffee" },
+    { id: "6", name: "Travel" },
+    { id: "7", name: "Utilities" },
+    { id: "8", name: "Transportation" },
+    { id: "9", name: "Insurance" },
+    { id: "10", name: "Clothing" },
+    { id: "11", name: "Healthcare" },
+    { id: "12", name: "Entertainment" },
+  ],
+
+  setTransactionType: (type) =>
     set((state) => ({
-      transactionData: { ...state.transactionData, title },
+      transactionData: {
+        ...state.transactionData,
+        transactionType: type,
+      },
     })),
+
   setAmount: (amount) =>
     set((state) => ({
-      transactionData: { ...state.transactionData, amount },
+      transactionData: {
+        ...state.transactionData,
+        description: { ...state.transactionData.description, amount },
+      },
     })),
+
   setDate: (date) =>
     set((state) => ({
       transactionData: { ...state.transactionData, date },
     })),
+
   setDescription: (description) =>
     set((state) => ({
       transactionData: { ...state.transactionData, description },
     })),
+
   setCategory: (category) =>
     set((state) => ({
       transactionData: { ...state.transactionData, category },
     })),
 
-  setCategoryCheckbox: (categoryName: string, checked: boolean) =>
-    set((state) => {
-      const updatedCategory = {
-        ...state.transactionData.category,
-        categoryName,
-        checked,
-      };
-      return {
-        transactionData: {
-          ...state.transactionData,
-          category: updatedCategory,
-        },
-      };
-    }),
+  setIsRecuring: (isRecuring) =>
+    set((state) => ({
+      transactionData: { ...state.transactionData, isRecuring },
+    })),
 
   addTransaction: () =>
     set((state) => {
-      const { title, amount, date, description, category } =
-        state.transactionData;
-      const { transactionType } = state;
+      const { transactionData } = state;
+      const { id, transactionType, date, description, category, isRecuring } =
+        transactionData;
 
       if (
-        !title ||
-        !amount ||
+        !id ||
         !date ||
         !description.details ||
         !transactionType ||
-        !category.categoryName
+        !category.name
       ) {
         console.error(
-          "Please fill all the required fields before adding a transaction."
+          "Please fill all required fields before adding a transaction."
         );
         return state;
       }
 
       const newTransaction: TransactionState = {
-        title,
-        amount,
+        id: uuid(),
+        transactionType,
         date,
         description,
         category,
-        transactionType,
+        isRecuring,
       };
 
       return {
         ...state,
         transactions: [...state.transactions, newTransaction],
+        // transactionData: {
+        //   id: uuid(),
+        //   transactionType: "expense",
+        //   date: "",
+        //   description: { title: "", amount: 0, details: "" },
+        //   category: { id: "", name: "" },
+        //   isRecuring: false,
+        // },
       };
     }),
 
   calculateTotalAmount: () =>
     set((state) => ({
       totalAmount: state.transactions.reduce(
-        (sum, transaction) => sum + transaction.amount,
+        (sum, transaction) => sum + transaction.description.amount,
         0
       ),
     })),
