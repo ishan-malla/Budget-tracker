@@ -20,14 +20,15 @@ type TypeProps = {
 };
 
 const formSchema = z.object({
-  type: z.enum(["Expense", "Income", "Investment"], {
+  type: z.enum(["expense", "income", "investment"], {
     errorMap: () => ({ message: "Please select a transaction type." }),
   }),
   recurring: z.boolean(),
 });
 
 const Type = ({ visibility, toggleType }: TypeProps) => {
-  const { transactionData } = useTransactionStore();
+  const { transactionData, setTransactionType, setIsRecuring } =
+    useTransactionStore();
   const { description, date } = transactionData;
 
   const [descriptionVis, setDescpriptionVis] = useState(false);
@@ -45,7 +46,7 @@ const Type = ({ visibility, toggleType }: TypeProps) => {
   } = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      type: "Expense",
+      type: "income",
       recurring: false,
     },
   });
@@ -56,15 +57,16 @@ const Type = ({ visibility, toggleType }: TypeProps) => {
       console.error("Please fill all required fields before submitting.");
       return;
     }
+    setTransactionType(data.type);
+    setIsRecuring(data.recurring);
     reset();
     toggleType();
     setErrorVisbility("hidden");
-    console.log("Form submitted:", data);
   };
 
   return (
     <div
-      className={`min-h-[49vh] overflow-x-auto h-auto border-2 min-w-[27vw] md:w-[30vw] flex flex-col p-4 rounded-sm ${visibility} absolute shadow-md shadow-gray-200 z-5 right-48 bg-white items-center rounded-xl border top-[4.6rem]`}
+      className={`min-h-[49vh] overflow-x-auto h-auto border-2 min-w-[27vw] md:w-[30vw] flex flex-col p-4 rounded-sm ${visibility} absolute shadow-md shadow-gray-200 z-1 right-48 bg-white items-center rounded-xl border top-[4.6rem]`}
     >
       <Description visibility={descpVisibility} toggle={toggleDesc} />
       <div className="w-full flex">
@@ -97,21 +99,21 @@ const Type = ({ visibility, toggleType }: TypeProps) => {
             >
               <TabsList className="w-full flex justify-between gap-1">
                 <TabsTrigger
-                  value="Expense"
+                  value="expense"
                   className="text-xs h-full w-[40%] flex gap-1"
                 >
                   <ArrowDownLeft size={16} color="#ef4444" strokeWidth={3} />
                   Expense
                 </TabsTrigger>
                 <TabsTrigger
-                  value="Income"
+                  value="income"
                   className="text-xs h-full w-[40%] flex gap-1"
                 >
                   <ArrowUpRight size={16} color="#22c55e" strokeWidth={3} />
                   Income
                 </TabsTrigger>
                 <TabsTrigger
-                  value="Investment"
+                  value="investment"
                   className="text-xs h-full w-[40%] flex gap-1"
                 >
                   <TrendingUp size={16} color="#6d28d9" strokeWidth={3} />

@@ -3,6 +3,7 @@ import { useTransactionStore } from "@/store/store";
 import { useEffect, useState } from "react";
 import { v4 as uuid } from "uuid";
 type CategoryObject = {
+  id: "string";
   name: string;
   isChecked: boolean;
 };
@@ -24,8 +25,7 @@ const Category = ({ filteredItems }: CategoryProps) => {
   useEffect(() => {
     const selectedCategory = filteredItems[checkboxStates.indexOf(true)]?.name;
 
-    setCategory({ id: uuid(), name: selectedCategory, isChecked: true });
-    console.log(selectedCategory);
+    setCategory({ id: uuid(), name: selectedCategory });
   }, [checkboxStates, filteredItems, setCategory]);
 
   return (

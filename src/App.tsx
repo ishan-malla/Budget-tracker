@@ -6,7 +6,7 @@ import TotalAmount from "./features/AmountViewer/TotalAmount";
 const App = () => {
   return (
     <div className=" h-auto min-h-[90%] w-screen flex  flex-col justify-center pt-20 overflow-x-hidden items-center scroll-smooth ">
-      <h1 className="text-3xl font-extrabold  mb-8 self-start px-60 ">
+      <h1 className="text-3xl font-extrabold  mb-8 self-start mx-[15vw] ">
         Summary
       </h1>
       <div className=" h-[80vh] w-[70vw] rounded-md">

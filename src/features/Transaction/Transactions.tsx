@@ -29,10 +29,12 @@ const Transactions = () => {
   };
   const categoryVisibility = dropDown == "CATEGORY" ? "" : "hidden";
   const typeVisibility = dropDown == "TYPE" ? "fade-in" : "fade-out hidden ";
-  const { addTransaction, transactionData, transactions } =
-    useTransactionStore();
-  console.log(transactionData);
-  console.log(transactions);
+  const {
+    addTransaction,
+    transactions,
+    calculateTotalAmount,
+    calculateTransactionType,
+  } = useTransactionStore();
 
   useEffect(() => {
     console.log("Transactions state in component:", transactions);
@@ -78,14 +80,21 @@ const Transactions = () => {
           </button>
           <button
             className="w-16 text-white bg-neutral-900 rounded-2xl flex-center gap-1 hover:bg-zinc-700 hover:text-gray-100"
-            onClick={() => addTransaction()}
+            onClick={() => {
+              addTransaction();
+              calculateTotalAmount();
+              calculateTransactionType();
+            }}
           >
             <Plus size={16} color="#ffffff" /> Add
           </button>
         </div>
       </div>
       <div className="h-[40vh] w-full mt-2">
-        <AddCategory visibility={categoryVisibility}></AddCategory>
+        <AddCategory
+          visibility={categoryVisibility}
+          toggleType={toggleCategory}
+        ></AddCategory>
         <Type visibility={typeVisibility} toggleType={toggleType}></Type>
         <Transaction></Transaction>
       </div>
