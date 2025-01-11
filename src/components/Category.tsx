@@ -3,9 +3,8 @@ import { useTransactionStore } from "@/store/store";
 import { useEffect, useState } from "react";
 import { v4 as uuid } from "uuid";
 type CategoryObject = {
-  id: "string";
+  id: string;
   name: string;
-  isChecked: boolean;
 };
 
 type CategoryProps = {
@@ -13,10 +12,9 @@ type CategoryProps = {
 };
 
 const Category = ({ filteredItems }: CategoryProps) => {
+  const intialState = filteredItems.map(() => false);
   const { setCategory } = useTransactionStore();
-  const [checkboxStates, setCheckboxStates] = useState(
-    filteredItems.map((category) => category.isChecked)
-  );
+  const [checkboxStates, setCheckboxStates] = useState(intialState);
 
   const handleCheckboxToggle = (index: number) => {
     setCheckboxStates((prevStates) => prevStates.map((_, i) => i === index));
