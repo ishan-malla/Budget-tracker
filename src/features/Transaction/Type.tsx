@@ -54,7 +54,6 @@ const Type = ({ visibility, toggleType }: TypeProps) => {
   const onSubmit = (data: z.infer<typeof formSchema>) => {
     if (!date || description.title === "") {
       setErrorVisbility("");
-      console.error("Please fill all required fields before submitting.");
       return;
     }
     setTransactionType(data.type);

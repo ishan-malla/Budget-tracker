@@ -1,5 +1,3 @@
-"use client";
-
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -41,14 +39,10 @@ const AddNewCategory = ({
     },
   });
 
-  const { setCategory } = useTransactionStore();
+  const { addCategory } = useTransactionStore();
 
   const onSubmit = (data: FormValues) => {
-    setCategory({
-      categoryName: data.category,
-      categoryGroup: "",
-      checked: false,
-    });
+    addCategory(data.category);
     form.reset();
     toggleVisibility();
   };
