@@ -44,6 +44,7 @@ type CreateType = {
   deleteTransaction: (id: string) => void;
   editType: (id: string) => void;
   addCategory: (category: string) => void;
+  editCategory: (id: string) => void;
 };
 
 export const useTransactionStore = create(
@@ -212,11 +213,33 @@ export const useTransactionStore = create(
 
           return {
             ...state,
-            description: transactionToEdit.description,
-            isRecuring: transactionToEdit.isRecuring,
-            category: transactionToEdit.category,
-            date: transactionToEdit.date,
-            transactionType: transactionToEdit.transactionType,
+            transactionData: {
+              id: transactionToEdit.id,
+              transactionType: transactionToEdit.transactionType,
+              date: transactionToEdit.date,
+              description: transactionToEdit.description,
+              category: transactionToEdit.category,
+              isRecuring: transactionToEdit.isRecuring,
+            },
+          };
+        }),
+      editCategory: (id) =>
+        set((state) => {
+          const transactionToEdit = state.transactions.find(
+            (transaction) => transaction.id === id
+          );
+
+          if (!transactionToEdit) {
+            alert("Transaction not found.");
+            return state;
+          }
+
+          return {
+            ...state,
+            transactionData: {
+              ...state.transactionData,
+              category: transactionToEdit.category,
+            },
           };
         }),
 

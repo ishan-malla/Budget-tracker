@@ -16,7 +16,8 @@ import { useTransactionStore } from "@/store/store";
 import { format } from "date-fns";
 
 const Transaction = () => {
-  const { transactions, deleteTransaction } = useTransactionStore();
+  const { transactions, deleteTransaction, editType, editCategory } =
+    useTransactionStore();
   const [visibility, setVisibility] = useState(false);
   const [selectedTransactionId, setSelectedTransactionId] = useState<
     string | null
@@ -101,8 +102,18 @@ const Transaction = () => {
               />
             </PopoverTrigger>
             <PopoverContent className="w-[17vh] flex flex-col gap-2 h-[11vh] p-1 text-sm font-semibold">
-              <button className="hover:bg-gray-100">Edit Type</button>
-              <button className="hover:bg-gray-100">Edit Category</button>
+              <button
+                className="hover:bg-gray-100"
+                onClick={() => editType(transaction.id)}
+              >
+                Edit Type
+              </button>
+              <button
+                className="hover:bg-gray-100"
+                onClick={() => editCategory(transaction.category.id)}
+              >
+                Edit Category
+              </button>
               <button
                 className="hover:bg-gray-100"
                 onClick={() => {

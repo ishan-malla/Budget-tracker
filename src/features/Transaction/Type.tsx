@@ -38,6 +38,8 @@ const Type = ({ visibility, toggleType }: TypeProps) => {
   const [errorVisibility, setErrorVisbility] = useState<"hidden" | "">(
     "hidden"
   );
+
+  console.log(transactionData);
   const {
     control,
     handleSubmit,
