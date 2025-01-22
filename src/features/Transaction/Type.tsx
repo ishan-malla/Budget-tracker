@@ -9,7 +9,7 @@ import { ArrowUpRight, ArrowDownLeft } from "lucide-react";
 import { SquareMenu } from "lucide-react";
 import { useTransactionStore } from "@/store/store";
 import Description from "./Description";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -27,7 +27,7 @@ const formSchema = z.object({
 });
 
 const Type = ({ visibility, toggleType }: TypeProps) => {
-  const { transactionData, setTransactionType, setIsRecuring } =
+  const { transactionData, setTransactionType, setIsRecuring, isEditing } =
     useTransactionStore();
   const { description, date } = transactionData;
 
@@ -40,6 +40,12 @@ const Type = ({ visibility, toggleType }: TypeProps) => {
   );
 
   console.log(transactionData);
+
+  useEffect(() => {
+    if (isEditing) {
+      toggleType();
+    }
+  }, [isEditing]);
   const {
     control,
     handleSubmit,

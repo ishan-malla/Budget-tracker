@@ -14,6 +14,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Label } from "@/components/ui/label";
 import { X } from "lucide-react";
 import { useTransactionStore } from "@/store/store";
+import { useEffect } from "react";
 
 type DescriptionProps = {
   visibility: string;
@@ -35,7 +36,7 @@ const formSchema = z.object({
 });
 
 const Description = ({ visibility, toggle }: DescriptionProps) => {
-  const { setDescription, transactionData } = useTransactionStore();
+  const { setDescription, transactionData, isEditing } = useTransactionStore();
   const { description } = transactionData;
 
   const form = useForm({
@@ -83,7 +84,7 @@ const Description = ({ visibility, toggle }: DescriptionProps) => {
               <FormItem>
                 <Label>Title</Label>
                 <FormControl>
-                  <Input placeholder="Add title" {...field} maxLength={10} />
+                  <Input placeholder="Add title" {...field} maxLength={30} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

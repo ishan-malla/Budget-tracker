@@ -31,9 +31,12 @@ type CreateType = {
   expense: number;
   investment: number;
   savings: number;
+  incomeCount: number;
+  expenseCount: number;
   transactionData: TransactionState;
   categoryList: CategoryType[];
-
+  isEditing: boolean;
+  selectedCategory: CategoryType;
   setTransactionType: (type: "income" | "expense" | "investment" | "") => void;
   setAmount: (amount: number) => void;
   setDate: (date: Date) => void;
@@ -45,6 +48,9 @@ type CreateType = {
   editType: (id: string) => void;
   addCategory: (category: string) => void;
   editCategory: (id: string) => void;
+  setIsEditing: () => void;
+  deleteCategory: () => void;
+  setSelectedCategory: (category: CategoryType) => void;
 };
 
 export const useTransactionStore = create(
@@ -55,8 +61,10 @@ export const useTransactionStore = create(
       investment: 0,
       income: 0,
       expense: 0,
+      incomeCount: 0,
+      expenseCount: 0,
       transactions: [],
-
+      isEditing: false,
       transactionData: {
         id: uuid(),
         transactionType: "",
@@ -65,7 +73,7 @@ export const useTransactionStore = create(
         category: { id: "", name: "" },
         isRecuring: false,
       },
-
+      selectedCategory: { id: "", name: "" },
       categoryList: [
         { id: "1", name: "🏠 Rent" },
         { id: "2", name: "🛒 Groceries" },
@@ -87,7 +95,6 @@ export const useTransactionStore = create(
             transactionType: type,
           },
         })),
-
       setAmount: (amount) =>
         set((state) => ({
           transactionData: {
@@ -95,30 +102,34 @@ export const useTransactionStore = create(
             description: { ...state.transactionData.description, amount },
           },
         })),
-
       setDate: (date) =>
         set((state) => ({
           transactionData: { ...state.transactionData, date },
         })),
-
       setDescription: (description) =>
         set((state) => ({
           transactionData: { ...state.transactionData, description },
         })),
-
       setCategory: (category) =>
         set((state) => ({
           transactionData: { ...state.transactionData, category },
         })),
-
       setIsRecuring: (isRecuring) =>
         set((state) => ({
           transactionData: { ...state.transactionData, isRecuring },
         })),
-
+      setIsEditing: () =>
+        set((state) => ({
+          isEditing: !state.isEditing,
+        })),
+      setSelectedCategory: (category) =>
+        set((state) => ({
+          ...state,
+          selectedCategory: category,
+        })),
       addTransaction: () =>
         set((state) => {
-          const { transactionData } = state;
+          const { transactionData, isEditing, transactions } = state;
           const {
             id,
             transactionType,
@@ -127,9 +138,7 @@ export const useTransactionStore = create(
             category,
             isRecuring,
           } = transactionData;
-
           if (
-            !id ||
             !date ||
             !description.details ||
             !transactionType ||
@@ -140,7 +149,33 @@ export const useTransactionStore = create(
             );
             return state;
           }
-
+          if (isEditing) {
+            const updatedTransactions = transactions.map((transaction) =>
+              transaction.id === id
+                ? {
+                    id,
+                    transactionType,
+                    date,
+                    description,
+                    category,
+                    isRecuring,
+                  }
+                : transaction
+            );
+            return {
+              ...state,
+              transactions: updatedTransactions,
+              isEditing: false,
+              transactionData: {
+                id: uuid(),
+                transactionType: "",
+                date: "",
+                description: { title: "", amount: 0, details: "" },
+                category: { id: "", name: "" },
+                isRecuring: false,
+              },
+            };
+          }
           const newTransaction: TransactionState = {
             id: uuid(),
             transactionType,
@@ -149,7 +184,6 @@ export const useTransactionStore = create(
             category,
             isRecuring,
           };
-
           return {
             ...state,
             transactions: [...state.transactions, newTransaction],
@@ -170,28 +204,32 @@ export const useTransactionStore = create(
             0
           ),
         })),
-
       calculateTransactionType: () =>
         set((state) => {
           let income = 0;
           let expense = 0;
           let investment = 0;
-
+          let incomeCount = 0;
+          let expenseCount = 0;
           state.transactions.forEach((transaction) => {
             if (transaction.transactionType === "income") {
               income += transaction.description.amount;
+              incomeCount += 1;
             } else if (transaction.transactionType === "expense") {
               expense += transaction.description.amount;
+              expenseCount += 1;
             } else if (transaction.transactionType === "investment") {
               investment += transaction.description.amount;
             }
           });
           const savings = income - (expense + investment);
           return {
-            income: income,
-            expense: expense,
-            investment: investment,
-            savings: savings,
+            income,
+            expense,
+            investment,
+            savings,
+            incomeCount,
+            expenseCount,
           };
         }),
       deleteTransaction: (id) =>
@@ -205,14 +243,13 @@ export const useTransactionStore = create(
           const transactionToEdit = state.transactions.find(
             (transaction) => transaction.id === id
           );
-
           if (!transactionToEdit) {
             alert("Transaction not found.");
             return state;
           }
-
           return {
             ...state,
+            isEditing: true,
             transactionData: {
               id: transactionToEdit.id,
               transactionType: transactionToEdit.transactionType,
@@ -228,12 +265,10 @@ export const useTransactionStore = create(
           const transactionToEdit = state.transactions.find(
             (transaction) => transaction.id === id
           );
-
           if (!transactionToEdit) {
             alert("Transaction not found.");
             return state;
           }
-
           return {
             ...state,
             transactionData: {
@@ -242,14 +277,28 @@ export const useTransactionStore = create(
             },
           };
         }),
-
-      addCategory: (category: string) => {
+      addCategory: (category: string) =>
         set((state) => ({
           categoryList: [...state.categoryList, { id: uuid(), name: category }],
-        }));
-      },
+        })),
+      deleteCategory: () =>
+        set((state) => {
+          const { categoryList, selectedCategory, transactions } = state;
+          const isInUse = transactions.some(
+            (transaction) => transaction.category.id === selectedCategory.id
+          );
+          if (isInUse) {
+            alert("Category is in use");
+            return state;
+          }
+          return {
+            ...state,
+            categoryList: categoryList.filter(
+              (cat) => cat.id !== selectedCategory.id
+            ),
+          };
+        }),
     }),
-
     { name: "transaction-store" }
   )
 );

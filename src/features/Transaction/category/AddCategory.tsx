@@ -6,6 +6,7 @@ import useToggleVisibility from "@/hooks/useToggleVisibilty";
 import { useTransactionStore } from "@/store/store";
 type AddTransactionProp = {
   visibility: "hidden" | "";
+  toggleCategory: () => void;
 };
 
 const AddCategory = ({ visibility }: AddTransactionProp) => {
@@ -13,7 +14,8 @@ const AddCategory = ({ visibility }: AddTransactionProp) => {
   const { visibility: AddNewCategoryVis, toggleVisibility } =
     useToggleVisibility();
 
-  const { categoryList } = useTransactionStore();
+  const { categoryList, deleteCategory } = useTransactionStore();
+  console.log(category);
   const filteredItems = useMemo(() => {
     if (!category) {
       return categoryList;
@@ -42,12 +44,18 @@ const AddCategory = ({ visibility }: AddTransactionProp) => {
       <ScrollArea className="pt-4 h-[30vh] text-xs p-1 w-full mt-3">
         <Category filteredItems={filteredItems} />
       </ScrollArea>
-      <div className="mt-auto font-semibold  grid items-center  border-t-2 text-sm p-1 gap-3 text-gray-600 w-full  h-10">
+      <div className="mt-auto font-semibold  grid items-center  border-t-2  text-[0.825rem] p-1 gap-2 text-gray-600 w-full  h-11 ">
         <button
-          className=" w-full hover:bg-gray-100 text-left h-5 "
+          className=" w-full hover:bg-gray-100 text-left h-4 "
           onClick={toggleVisibility}
         >
           Add new category
+        </button>
+        <button
+          className="w-full hover:bg-gray-100 text-left h-3 pd-1 "
+          onClick={deleteCategory}
+        >
+          Delete category
         </button>
       </div>
     </div>
