@@ -6,6 +6,7 @@ import { z } from "zod";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
+import useSetValue from "@/hooks/useSetValue";
 import {
   Form,
   FormControl,
@@ -21,6 +22,7 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { useTransactionStore } from "@/store/store";
 import { Toaster } from "./ui/toaster";
+import useResetForms from "@/hooks/ResetForms";
 
 const FormSchema = z.object({
   date: z.date({
@@ -34,29 +36,38 @@ export function CalendarForm() {
     mode: "onChange",
   });
 
-  const { setDate } = useTransactionStore();
+  const { setDate, transactionData } = useTransactionStore();
+  const { setValue, reset } = form;
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
-    setDate(data.date);
-    toast({
-      title: "Date Added",
-      duration: 1500,
-    });
-  }
+  const handleDateSelect = (date: Date | undefined) => {
+    if (date) {
+      setValue("date", date);
+      setDate(date);
+      toast({
+        title: "Date Selected",
+        description: format(date, "PPP"),
+        duration: 1500,
+      });
+    }
+  };
 
+  useResetForms(reset);
+
+  useSetValue<Date>({
+    name: "date",
+    value: new Date(transactionData.date),
+    setValue,
+  });
   return (
     <>
       <Toaster />
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="w-full mt-5 flex items-center  justify-center p-1"
-        >
+        <form className="w-full mt-5 flex items-center justify-center p-1">
           <FormField
             control={form.control}
             name="date"
             render={({ field }) => (
-              <FormItem className="flex p-2 w-[80%]">
+              <FormItem className="flex p-2 w-full">
                 <Popover>
                   <PopoverTrigger asChild>
                     <FormControl>
@@ -80,7 +91,7 @@ export function CalendarForm() {
                     <Calendar
                       mode="single"
                       selected={field.value}
-                      onSelect={(date) => field.onChange(date)}
+                      onSelect={handleDateSelect}
                       disabled={(date) =>
                         date > new Date() || date < new Date("2000-01-01")
                       }
@@ -91,8 +102,7 @@ export function CalendarForm() {
                       variant={"outline"}
                       onClick={() => {
                         const today = new Date();
-                        field.onChange(today);
-                        setDate(today);
+                        handleDateSelect(today);
                       }}
                     >
                       Select Today
@@ -103,9 +113,6 @@ export function CalendarForm() {
               </FormItem>
             )}
           />
-          <Button type="submit" className="w-[14%]  text-xs">
-            Add
-          </Button>
         </form>
       </Form>
     </>

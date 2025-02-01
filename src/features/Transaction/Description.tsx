@@ -14,7 +14,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Label } from "@/components/ui/label";
 import { X } from "lucide-react";
 import { useTransactionStore } from "@/store/store";
-import { useEffect } from "react";
+import useResetForms from "@/hooks/ResetForms";
+import useSetValue from "@/hooks/useSetValue";
 
 type DescriptionProps = {
   visibility: string;
@@ -36,7 +37,7 @@ const formSchema = z.object({
 });
 
 const Description = ({ visibility, toggle }: DescriptionProps) => {
-  const { setDescription, transactionData, isEditing } = useTransactionStore();
+  const { setDescription, transactionData } = useTransactionStore();
   const { description } = transactionData;
 
   const form = useForm({
@@ -48,16 +49,33 @@ const Description = ({ visibility, toggle }: DescriptionProps) => {
     },
   });
 
-  const { control, handleSubmit, reset } = form;
+  const { control, handleSubmit, reset, setValue } = form;
   const onSubmit = (data: {
     title: string;
     details: string;
     amount: number;
   }) => {
     setDescription(data);
-    reset();
     toggle();
   };
+
+  useResetForms(reset);
+
+  useSetValue<string>({
+    name: "title",
+    value: transactionData.description.title,
+    setValue,
+  });
+  useSetValue<number>({
+    name: "amount",
+    value: transactionData.description.amount,
+    setValue,
+  });
+  useSetValue<string>({
+    name: "details",
+    value: transactionData.description.details,
+    setValue,
+  });
 
   return (
     <div

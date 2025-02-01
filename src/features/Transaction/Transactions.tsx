@@ -36,11 +36,12 @@ const Transactions = () => {
     transactions,
     calculateTotalAmount,
     calculateTransactionType,
-    isEditing,
+    isEditingTransaction,
     setCategory,
     selectedCategory,
     incomeCount,
     expenseCount,
+    isEditingCategory,
   } = useTransactionStore();
 
   useEffect(() => {
@@ -52,6 +53,10 @@ const Transactions = () => {
     calculateTotalAmount();
     calculateTransactionType();
     setCategory(selectedCategory);
+
+    if (dropDown) {
+      setDropDown(null);
+    }
   };
 
   const makeTransactionTypePlural = (transactionCount: number) =>
@@ -102,7 +107,7 @@ const Transactions = () => {
               className={`w-16 h-full text-white bg-neutral-900 rounded-2xl flex-center gap-1 hover:bg-zinc-700 hover:text-gray-100`}
               onClick={handleAction}
             >
-              {!isEditing ? (
+              {!isEditingTransaction && !isEditingCategory ? (
                 <>
                   <Plus size={16} color="#ffffff" /> Add
                 </>

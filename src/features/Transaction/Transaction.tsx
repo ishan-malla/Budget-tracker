@@ -104,13 +104,17 @@ const Transaction = () => {
             <PopoverContent className="w-[17vh] flex flex-col gap-2 h-[11vh] p-1 text-sm font-semibold">
               <button
                 className="hover:bg-gray-100"
-                onClick={() => editType(transaction.id)}
+                onClick={() => {
+                  editType(transaction.id);
+                }}
               >
                 Edit Type
               </button>
               <button
                 className="hover:bg-gray-100"
-                onClick={() => editCategory(transaction.category.id)}
+                onClick={() => {
+                  editCategory(transaction.id);
+                }}
               >
                 Edit Category
               </button>

@@ -27,10 +27,13 @@ const formSchema = z.object({
 });
 
 const Type = ({ visibility, toggleType }: TypeProps) => {
-  const { transactionData, setTransactionType, setIsRecuring, isEditing } =
-    useTransactionStore();
-  const { description, date } = transactionData;
-
+  const {
+    transactionData,
+    setTransactionType,
+    setIsRecuring,
+    isEditingTransaction,
+  } = useTransactionStore();
+  const { description, date, isRecuring } = transactionData;
   const [descriptionVis, setDescpriptionVis] = useState(false);
   const descpVisibility = descriptionVis ? "" : "hidden";
 
@@ -39,23 +42,21 @@ const Type = ({ visibility, toggleType }: TypeProps) => {
     "hidden"
   );
 
-  console.log(transactionData);
-
   useEffect(() => {
-    if (isEditing) {
+    if (isEditingTransaction) {
       toggleType();
     }
-  }, [isEditing]);
+  }, [isEditingTransaction]);
+
   const {
     control,
     handleSubmit,
     formState: { errors },
-    reset,
   } = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      type: "income",
-      recurring: false,
+      type: "expense",
+      recurring: isRecuring || false,
     },
   });
 
@@ -66,7 +67,6 @@ const Type = ({ visibility, toggleType }: TypeProps) => {
     }
     setTransactionType(data.type);
     setIsRecuring(data.recurring);
-    reset();
     toggleType();
     setErrorVisbility("hidden");
   };
@@ -148,8 +148,7 @@ const Type = ({ visibility, toggleType }: TypeProps) => {
               Add as recurring
             </p>
             <p className="text-xs text-gray-500 font-medium pl-6">
-              This transaction will be added again the following months at the
-              same day as today.
+              Add If this transaction is a recurring transaciton
             </p>
           </div>
           <Controller

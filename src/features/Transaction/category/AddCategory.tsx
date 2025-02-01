@@ -1,6 +1,6 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import Category from "@/components/Category";
+import Category from "@/features/Transaction/category/Category";
 import AddNewCategory from "./AddNewCategory";
 import useToggleVisibility from "@/hooks/useToggleVisibilty";
 import { useTransactionStore } from "@/store/store";
@@ -9,13 +9,21 @@ type AddTransactionProp = {
   toggleCategory: () => void;
 };
 
-const AddCategory = ({ visibility }: AddTransactionProp) => {
+const AddCategory = ({ visibility, toggleCategory }: AddTransactionProp) => {
   const [category, setCategory] = useState("");
   const { visibility: AddNewCategoryVis, toggleVisibility } =
     useToggleVisibility();
 
-  const { categoryList, deleteCategory } = useTransactionStore();
+  const { categoryList, deleteCategory, isEditingCategory } =
+    useTransactionStore();
   console.log(category);
+
+  useEffect(() => {
+    if (isEditingCategory) {
+      toggleCategory();
+    }
+  }, [isEditingCategory]);
+
   const filteredItems = useMemo(() => {
     if (!category) {
       return categoryList;

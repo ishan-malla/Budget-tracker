@@ -35,8 +35,10 @@ type CreateType = {
   expenseCount: number;
   transactionData: TransactionState;
   categoryList: CategoryType[];
-  isEditing: boolean;
+  isEditingTransaction: boolean;
+  isEditingCategory: boolean;
   selectedCategory: CategoryType;
+  isSubmiting: boolean;
   setTransactionType: (type: "income" | "expense" | "investment" | "") => void;
   setAmount: (amount: number) => void;
   setDate: (date: Date) => void;
@@ -48,9 +50,18 @@ type CreateType = {
   editType: (id: string) => void;
   addCategory: (category: string) => void;
   editCategory: (id: string) => void;
-  setIsEditing: () => void;
   deleteCategory: () => void;
   setSelectedCategory: (category: CategoryType) => void;
+  setIsSubmiting: (isSubmitting: boolean) => void;
+};
+
+const initialTransactionData: TransactionState = {
+  id: uuid(),
+  transactionType: "",
+  date: "",
+  description: { title: "", amount: 0, details: "" },
+  category: { id: "", name: "" },
+  isRecuring: false,
 };
 
 export const useTransactionStore = create(
@@ -64,16 +75,11 @@ export const useTransactionStore = create(
       incomeCount: 0,
       expenseCount: 0,
       transactions: [],
-      isEditing: false,
-      transactionData: {
-        id: uuid(),
-        transactionType: "",
-        date: "",
-        description: { title: "", amount: 0, details: "" },
-        category: { id: "", name: "" },
-        isRecuring: false,
-      },
+      isEditingTransaction: false,
+      isEditingCategory: false,
+      transactionData: initialTransactionData,
       selectedCategory: { id: "", name: "" },
+      isSubmiting: false,
       categoryList: [
         { id: "1", name: "🏠 Rent" },
         { id: "2", name: "🛒 Groceries" },
@@ -88,6 +94,7 @@ export const useTransactionStore = create(
         { id: "11", name: "💊 Healthcare" },
         { id: "12", name: "🎉 Entertainment" },
       ],
+
       setTransactionType: (type) =>
         set((state) => ({
           transactionData: {
@@ -95,6 +102,7 @@ export const useTransactionStore = create(
             transactionType: type,
           },
         })),
+
       setAmount: (amount) =>
         set((state) => ({
           transactionData: {
@@ -102,34 +110,44 @@ export const useTransactionStore = create(
             description: { ...state.transactionData.description, amount },
           },
         })),
+
       setDate: (date) =>
         set((state) => ({
           transactionData: { ...state.transactionData, date },
         })),
+
       setDescription: (description) =>
         set((state) => ({
           transactionData: { ...state.transactionData, description },
         })),
+
       setCategory: (category) =>
         set((state) => ({
-          transactionData: { ...state.transactionData, category },
+          transactionData: {
+            ...state.transactionData,
+            category,
+          },
+          selectedCategory: category,
+          isEditingCategory: false,
         })),
+
       setIsRecuring: (isRecuring) =>
         set((state) => ({
           transactionData: { ...state.transactionData, isRecuring },
         })),
-      setIsEditing: () =>
-        set((state) => ({
-          isEditing: !state.isEditing,
-        })),
+
       setSelectedCategory: (category) =>
-        set((state) => ({
-          ...state,
+        set(() => ({
           selectedCategory: category,
         })),
       addTransaction: () =>
         set((state) => {
-          const { transactionData, isEditing, transactions } = state;
+          const {
+            transactionData,
+            isEditingTransaction,
+            transactions,
+            isEditingCategory,
+          } = state;
           const {
             id,
             transactionType,
@@ -138,6 +156,7 @@ export const useTransactionStore = create(
             category,
             isRecuring,
           } = transactionData;
+
           if (
             !date ||
             !description.details ||
@@ -149,52 +168,47 @@ export const useTransactionStore = create(
             );
             return state;
           }
-          if (isEditing) {
+
+          if (isEditingTransaction || isEditingCategory) {
             const updatedTransactions = transactions.map((transaction) =>
               transaction.id === id
                 ? {
-                    id,
-                    transactionType,
-                    date,
-                    description,
+                    ...transaction,
                     category,
+                    description,
+                    date,
+                    transactionType,
                     isRecuring,
                   }
                 : transaction
             );
+
             return {
               ...state,
               transactions: updatedTransactions,
-              isEditing: false,
-              transactionData: {
-                id: uuid(),
-                transactionType: "",
-                date: "",
-                description: { title: "", amount: 0, details: "" },
-                category: { id: "", name: "" },
-                isRecuring: false,
-              },
+              isEditingTransaction: false,
+              isEditingCategory: false,
+              transactionData: initialTransactionData,
+              isSubmiting: true,
+              selectedCategory: { id: "", name: "" },
             };
           }
+
           const newTransaction: TransactionState = {
             id: uuid(),
             transactionType,
             date,
             description,
-            category,
+            category: state.selectedCategory,
             isRecuring,
           };
+
           return {
             ...state,
             transactions: [...state.transactions, newTransaction],
-            transactionData: {
-              id: uuid(),
-              transactionType: "",
-              date: "",
-              description: { title: "", amount: 0, details: "" },
-              category: { id: "", name: "" },
-              isRecuring: false,
-            },
+            transactionData: initialTransactionData,
+            isSubmiting: true,
+            selectedCategory: { id: "", name: "" },
           };
         }),
       calculateTotalAmount: () =>
@@ -204,6 +218,7 @@ export const useTransactionStore = create(
             0
           ),
         })),
+
       calculateTransactionType: () =>
         set((state) => {
           let income = 0;
@@ -211,18 +226,26 @@ export const useTransactionStore = create(
           let investment = 0;
           let incomeCount = 0;
           let expenseCount = 0;
+
           state.transactions.forEach((transaction) => {
-            if (transaction.transactionType === "income") {
-              income += transaction.description.amount;
-              incomeCount += 1;
-            } else if (transaction.transactionType === "expense") {
-              expense += transaction.description.amount;
-              expenseCount += 1;
-            } else if (transaction.transactionType === "investment") {
-              investment += transaction.description.amount;
+            const amount = transaction.description.amount;
+            switch (transaction.transactionType) {
+              case "income":
+                income += amount;
+                incomeCount++;
+                break;
+              case "expense":
+                expense += amount;
+                expenseCount++;
+                break;
+              case "investment":
+                investment += amount;
+                break;
             }
           });
+
           const savings = income - (expense + investment);
+
           return {
             income,
             expense,
@@ -232,72 +255,85 @@ export const useTransactionStore = create(
             expenseCount,
           };
         }),
+
       deleteTransaction: (id) =>
         set((state) => ({
           transactions: state.transactions.filter(
             (transaction) => transaction.id !== id
           ),
         })),
+
       editType: (id) =>
         set((state) => {
+          set(() => ({ isSubmiting: true }));
           const transactionToEdit = state.transactions.find(
             (transaction) => transaction.id === id
           );
+
           if (!transactionToEdit) {
             alert("Transaction not found.");
+            set(() => ({ isSubmiting: false }));
             return state;
           }
+
           return {
             ...state,
-            isEditing: true,
-            transactionData: {
-              id: transactionToEdit.id,
-              transactionType: transactionToEdit.transactionType,
-              date: transactionToEdit.date,
-              description: transactionToEdit.description,
-              category: transactionToEdit.category,
-              isRecuring: transactionToEdit.isRecuring,
-            },
+            isEditingTransaction: true,
+            transactionData: transactionToEdit,
           };
         }),
+
       editCategory: (id) =>
         set((state) => {
+          set(() => ({ isSubmiting: true }));
           const transactionToEdit = state.transactions.find(
             (transaction) => transaction.id === id
           );
+
           if (!transactionToEdit) {
             alert("Transaction not found.");
+            set(() => ({ isSubmiting: false }));
             return state;
           }
+
           return {
             ...state,
-            transactionData: {
-              ...state.transactionData,
-              category: transactionToEdit.category,
-            },
+            isEditingCategory: true,
+            selectedCategory: transactionToEdit.category,
+            transactionData: transactionToEdit,
           };
         }),
+
       addCategory: (category: string) =>
         set((state) => ({
           categoryList: [...state.categoryList, { id: uuid(), name: category }],
         })),
+
       deleteCategory: () =>
         set((state) => {
           const { categoryList, selectedCategory, transactions } = state;
           const isInUse = transactions.some(
             (transaction) => transaction.category.id === selectedCategory.id
           );
+
           if (isInUse) {
             alert("Category is in use");
             return state;
           }
+
           return {
             ...state,
             categoryList: categoryList.filter(
               (cat) => cat.id !== selectedCategory.id
             ),
+            selectedCategory: { id: "", name: "" },
           };
         }),
+
+      setIsSubmiting: (isSubmitting) =>
+        set(() => ({
+          isSubmiting: isSubmitting,
+        })),
     }),
     { name: "transaction-store" }
   )
