@@ -16,7 +16,6 @@ const AddCategory = ({ visibility, toggleCategory }: AddTransactionProp) => {
 
   const { categoryList, deleteCategory, isEditingCategory } =
     useTransactionStore();
-  console.log(category);
 
   useEffect(() => {
     if (isEditingCategory) {

@@ -17,5 +17,3 @@ function useToggleVisibility(initialState: boolean = true): useToggleType {
 }
 
 export default useToggleVisibility;
-
-//give id to each componet which calls this component and function accordingly

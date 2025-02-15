@@ -191,7 +191,7 @@ export const useTransactionStore = create(
               isEditingCategory: false,
               transactionData: initialTransactionData,
               selectedCategory: { id: "", name: "" },
-              isSubmiting: false,
+              isSubmiting: true,
             };
           }
 
@@ -209,7 +209,7 @@ export const useTransactionStore = create(
             transactions: [...state.transactions, newTransaction],
             transactionData: initialTransactionData,
             selectedCategory: { id: "", name: "" },
-            isSubmiting: false,
+            isSubmiting: true,
           };
         }),
 
@@ -267,13 +267,15 @@ export const useTransactionStore = create(
 
       editType: (id) =>
         set((state) => {
+          set(() => ({ isSubmiting: true }));
           const transactionToEdit = state.transactions.find(
             (transaction) => transaction.id === id
           );
 
           if (!transactionToEdit) {
             alert("Transaction not found.");
-            return { ...state, isSubmiting: false };
+            set(() => ({ isSubmiting: false }));
+            return { ...state };
           }
 
           return {
