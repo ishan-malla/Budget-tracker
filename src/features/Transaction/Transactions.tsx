@@ -1,6 +1,6 @@
 import { Plus, ChevronDown } from "lucide-react";
 import AddCategory from "./category/AddCategory";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Type from "./Type";
 import Transaction from "./Transaction";
 import { useTransactionStore } from "@/store/store";
@@ -33,7 +33,6 @@ const Transactions = () => {
 
   const {
     addTransaction,
-    transactions,
     calculateTotalAmount,
     calculateTransactionType,
     isEditingTransaction,
@@ -43,10 +42,6 @@ const Transactions = () => {
     expenseCount,
     isEditingCategory,
   } = useTransactionStore();
-
-  useEffect(() => {
-    console.log("Transactions state in component:", transactions);
-  }, [transactions]);
 
   const handleAction = () => {
     addTransaction();

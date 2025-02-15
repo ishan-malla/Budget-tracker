@@ -12,8 +12,13 @@ type CategoryProps = {
 };
 
 const Category = ({ filteredItems }: CategoryProps) => {
-  const { setSelectedCategory, selectedCategory, isEditingCategory } =
-    useTransactionStore();
+  const {
+    setSelectedCategory,
+    selectedCategory,
+    isEditingCategory,
+    setCategory,
+  } = useTransactionStore();
+
   const [checkboxStates, setCheckboxStates] = useState(
     filteredItems.map((item) => item.id === selectedCategory.id)
   );
@@ -24,15 +29,23 @@ const Category = ({ filteredItems }: CategoryProps) => {
     );
   }, [filteredItems, selectedCategory]);
 
-  useEffect(() => {}, [isEditingCategory]);
   const handleCheckboxToggle = (index: number) => {
     const newStates = filteredItems.map((_, i) => i === index);
     setCheckboxStates(newStates);
 
-    if (filteredItems[index].id === selectedCategory.id) {
-      setSelectedCategory({ id: "", name: "" });
+    const selectedItem = filteredItems[index];
+
+    if (isEditingCategory) {
+      // When editing, update both selectedCategory and transactionData
+      setSelectedCategory(selectedItem);
+      setCategory(selectedItem);
     } else {
-      setSelectedCategory(filteredItems[index]);
+      // Normal selection
+      if (selectedItem.id === selectedCategory.id) {
+        setSelectedCategory({ id: "", name: "" });
+      } else {
+        setSelectedCategory(selectedItem);
+      }
     }
   };
 

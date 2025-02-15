@@ -13,7 +13,7 @@ type CategoryType = {
   name: string;
 };
 
-type TransactionState = {
+export type TransactionState = {
   id: string;
   transactionType: "income" | "expense" | "investment" | "";
   date: Date | "";
@@ -95,6 +95,7 @@ export const useTransactionStore = create(
         { id: "12", name: "🎉 Entertainment" },
       ],
 
+      // Setters for updating transaction data
       setTransactionType: (type) =>
         set((state) => ({
           transactionData: {
@@ -128,7 +129,6 @@ export const useTransactionStore = create(
             category,
           },
           selectedCategory: category,
-          isEditingCategory: false,
         })),
 
       setIsRecuring: (isRecuring) =>
@@ -140,13 +140,14 @@ export const useTransactionStore = create(
         set(() => ({
           selectedCategory: category,
         })),
+
       addTransaction: () =>
         set((state) => {
           const {
             transactionData,
             isEditingTransaction,
-            transactions,
             isEditingCategory,
+            transactions,
           } = state;
           const {
             id,
@@ -189,8 +190,8 @@ export const useTransactionStore = create(
               isEditingTransaction: false,
               isEditingCategory: false,
               transactionData: initialTransactionData,
-              isSubmiting: true,
               selectedCategory: { id: "", name: "" },
+              isSubmiting: false,
             };
           }
 
@@ -207,10 +208,11 @@ export const useTransactionStore = create(
             ...state,
             transactions: [...state.transactions, newTransaction],
             transactionData: initialTransactionData,
-            isSubmiting: true,
             selectedCategory: { id: "", name: "" },
+            isSubmiting: false,
           };
         }),
+
       calculateTotalAmount: () =>
         set((state) => ({
           totalAmount: state.transactions.reduce(
@@ -265,42 +267,41 @@ export const useTransactionStore = create(
 
       editType: (id) =>
         set((state) => {
-          set(() => ({ isSubmiting: true }));
           const transactionToEdit = state.transactions.find(
             (transaction) => transaction.id === id
           );
 
           if (!transactionToEdit) {
             alert("Transaction not found.");
-            set(() => ({ isSubmiting: false }));
-            return state;
+            return { ...state, isSubmiting: false };
           }
 
           return {
             ...state,
             isEditingTransaction: true,
             transactionData: transactionToEdit,
+            selectedCategory: transactionToEdit.category,
+            isSubmiting: true,
           };
         }),
 
       editCategory: (id) =>
         set((state) => {
-          set(() => ({ isSubmiting: true }));
           const transactionToEdit = state.transactions.find(
             (transaction) => transaction.id === id
           );
 
           if (!transactionToEdit) {
             alert("Transaction not found.");
-            set(() => ({ isSubmiting: false }));
-            return state;
+            return { ...state, isSubmiting: false };
           }
 
           return {
             ...state,
             isEditingCategory: true,
-            selectedCategory: transactionToEdit.category,
             transactionData: transactionToEdit,
+            selectedCategory: transactionToEdit.category,
+            isSubmiting: true,
           };
         }),
 

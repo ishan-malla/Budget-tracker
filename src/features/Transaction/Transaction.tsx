@@ -74,10 +74,11 @@ const Transaction = () => {
               {transaction.category.name}
             </span>
             <span className="text-sm font-medium">
-              {transaction.date instanceof Date
-                ? format(transaction.date, "MMM dd, yyyy")
+              {transaction.date
+                ? format(new Date(transaction.date), "MMM dd, yyyy")
                 : "No date"}
             </span>
+
             <span
               className={`text-sm font-semibold ${
                 transaction.transactionType === "expense"
